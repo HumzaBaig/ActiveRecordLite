@@ -5,7 +5,18 @@ require 'active_support/inflector'
 
 class SQLObject
   def self.columns
-    # ...
+    if @all_rows.nil?
+      @all_rows = DBConnection.execute2(<<-SQL)
+        SELECT *
+        FROM #{table_name}
+      SQL
+
+      column_names = @all_rows[0]
+
+      column_names.map! { |name| name.to_sym }
+    end
+
+    column_names
   end
 
   def self.finalize!
@@ -36,7 +47,7 @@ class SQLObject
   end
 
   def attributes
-    # ...
+    
   end
 
   def attribute_values
