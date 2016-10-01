@@ -104,7 +104,14 @@ class SQLObject
   end
 
   def update
-    # ...
+    set_string = self.class.columns[1..-1].join("= ?, ").concat("= ?")
+    id = self.id
+
+    DBConnection.execute(<<-SQL, *attribute_values.drop(1), id)
+      UPDATE #{self.class.table_name}
+      SET #{set_string}
+      WHERE id = ?
+    SQL
   end
 
   def save
